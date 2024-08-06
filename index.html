@@ -30,7 +30,7 @@
                         <a class="nav-link" href="#">Đăng ký</a>
                     </li>
                     <li class="nav-item active d-none" id="profileBtn">
-                        <a class="nav-link" href="#">Tài khoản</a>
+                        <a class="nav-link" href="#">Đơn hàng của tôi</a>
                     </li>
                     <li class="nav-item active d-none" id="logoutBtn">
                         <a class="nav-link" href="#">Đăng xuất</a>
@@ -247,6 +247,88 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary" id="submitCarts">Xác nhận</button>
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy bỏ</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--Modal danh sách các đơn hàng-->
+        <div class="modal" tabindex="-1" role="dialog" id="orderListModal">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Danh sách đơn hàng</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Danh sách đơn hàng -->
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Mã đơn hàng</th>
+                                    <th scope="col">Ngày đặt hàng</th>
+                                    <th scope="col">Tổng tiền</th>
+                                    
+                                    <th scope="col"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="orderListTable">
+                                <!-- Danh sách đơn hàng sẽ được hiển thị ở đây -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--Modal đơn hàng chi tiết-->
+        <div class="modal" tabindex="-1" role="dialog" id="orderDetailModal">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Chi tiết đơn hàng</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" id="orderDetailModalBody">
+                        <!--card info order-->
+                        <div class="card">
+                            <div class="card-header">
+                                Thông tin đơn hàng
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">Mã đơn hàng: <span id="orderDetailCode"></span></h5>
+                                <p class="card-text">Ngày đặt hàng: <span id="orderDetailDate"></span></p>
+                                <p class="card-text">Tổng tiền: <span id="orderDetailTotal"></span></p>
+                                <p class="card-text">Địa chỉ nhận hàng: <span id="orderDetailShippingAddress"></span></p>
+                                <p class="card-text">Tên người nhận: <span id="orderDetailReceiver"></span></p>
+                                <p class="card-text">SĐT nhận hàng: <span id="orderDetailPhoneNumber"></span></p>
+                            </div>
+                        </div>
+                        <!-- Danh sách sách trong giỏ hàng -->
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Tên sách</th>
+                                    <th scope="col">Giá</th>
+                                    <th scope="col">Số lượng</th>
+                                    <th scope="col">Thành tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orderDetailTable">
+                                <!-- Danh sách sách trong giỏ hàng sẽ được hiển thị ở đây -->
+                            </tbody>
+                        </table>
+                        <div class="alert alert-primary" role="alert" id="orderDetailTotalAmount">
+                            Tổng tiền: 0
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
                     </div>
                 </div>
             </div>

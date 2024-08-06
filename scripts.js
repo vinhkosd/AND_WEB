@@ -18,6 +18,7 @@ var submitCarts = document.getElementById("submitCarts");
 
 var bookCacheds = [];
 var savedShippingAddresses = [];
+var orderListCached = [];
 document.addEventListener("DOMContentLoaded", () => {
     fetch(apiUrl + "category")
         .then(response => response.json())
@@ -41,11 +42,12 @@ document.addEventListener("DOMContentLoaded", () => {
     window.loadBooks();
 
     if(getUser()){
-
         $(loginBtn).addClass("d-none");
         $(registerBtn).addClass("d-none");
         $(profileBtn).removeClass("d-none");
-        $(logoutBtn).removeClass("d-none");        
+        $(logoutBtn).removeClass("d-none");    
+        //get order list    
+        getOrderList();
     } else {
         $(loginBtn).removeClass("d-none");
         $(registerBtn).removeClass("d-none");
@@ -73,6 +75,17 @@ document.addEventListener("DOMContentLoaded", () => {
     frmLoginBtn.addEventListener("click", function (e) {
         e.preventDefault();
         loginHandler();
+    });
+
+    profileBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+        var user = getUser();
+        if(!user){
+            alert("Vui lòng đăng nhập để xem thông tin cá nhân");
+            return;
+        }
+        var orderListModal = new bootstrap.Modal(document.getElementById("orderListModal"));
+        orderListModal.show();
     });
 
     cartBtn.addEventListener("click", function (e) {
@@ -191,6 +204,85 @@ document.addEventListener("DOMContentLoaded", () => {
 
     loadShippingAddress();
 });
+
+window.getOrderList = function () {
+    if(!getUser()){
+        return;
+    }
+    var myHeaders = new Headers();
+    myHeaders.append("authorization", "Bearer " + localStorage.getItem("token"));
+    fetch(apiUrl + "user/getOrders", {
+        headers: myHeaders,
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                orderListCached = data.orders;
+                var orderList = document.getElementById("orderListTable");
+                orderList.innerHTML = "";
+                data.orders.forEach(order => {
+                    var orderRow = document.createElement("tr");
+                    var orderDateFormatted = new Date(order.orderDate).toLocaleDateString();
+                    var orderIdSmallize = order._id.slice(0, 5);
+                    orderRow.innerHTML = `
+                    <td>${orderIdSmallize}</td>
+                    <td>${orderDateFormatted}</td>
+                    <td>${order.totalAmount}</td>
+                    <td><button class="btn btn-warning" onclick="seeOrderDetail('${order._id}')">Xem chi tiết</button></td>
+                    `;
+                    orderList.appendChild(orderRow);
+                });
+            } else {
+                alert(data.message);
+            }
+        });
+};
+
+window.seeOrderDetail = function (orderId) {
+    var order = orderListCached.find(order => order._id === orderId);
+    if(!order){
+        alert("Không tìm thấy đơn hàng này, vui lòng thử lại");
+        return;
+    }
+
+    orderListModal = new bootstrap.Modal(document.getElementById("orderDetailModal"));
+    orderListModal.hide();
+
+    var orderDetailTable = document.getElementById("orderDetailTable");
+    var orderDetailCode = document.getElementById("orderDetailCode");
+    var orderDetailDate = document.getElementById("orderDetailDate");
+    var orderDetailTotal = document.getElementById("orderDetailTotal");
+    var orderDetailTotalAmount = document.getElementById("orderDetailTotalAmount");
+    var orderDetailShippingAddress = document.getElementById("orderDetailShippingAddress");
+    var orderDetailReceiver = document.getElementById("orderDetailReceiver");
+    var orderDetailPhoneNumber = document.getElementById("orderDetailPhoneNumber");
+
+    orderDetailReceiver.innerText = order.addressId.receiverName;
+    orderDetailPhoneNumber.innerText = order.addressId.phoneNumber;
+    orderDetailShippingAddress.innerText = order.addressId.addressLine1 + ", " + order.addressId.wardId.wardName + ", " + order.addressId.wardId.districtId.districtName + ", " + order.addressId.wardId.districtId.provinceId.provinceName;
+    orderDetailTotalAmount.innerText = order.totalAmount + " VND";
+    orderDetailCode.innerText = orderId;
+    orderDetailDate.innerText = new Date(order.orderDate).toLocaleDateString();
+    orderDetailTotal.innerText = order.totalAmount + " VND";
+    orderDetailTable.innerHTML = "";
+    order.orderDetails.forEach(orderDetail => {
+        var book = orderDetail.bookId;
+        if(!book){
+            return;
+        }
+        var orderDetailRow = document.createElement("tr");
+        orderDetailRow.innerHTML = `
+        <td>${book.title}</td>
+        <td>${book.price}</td>
+        <td>${orderDetail.quantity}</td>
+        <td>${parseFloat(parseFloat(orderDetail.unitPrice) * parseFloat(orderDetail.quantity)).toFixed(2)}</td>
+        `;
+        orderDetailTable.appendChild(orderDetailRow);
+    });
+
+    var orderDetailModal = new bootstrap.Modal(document.getElementById("orderDetailModal"));
+    orderDetailModal.show();
+}
 
 window.saveAddress = function () {
     var newAddressFrm = document.getElementById("newAddressFrm");
@@ -361,6 +453,8 @@ window.listDistrict = function (provinceId = null) {
                 districtSelect.appendChild(option);
             });
         });
+
+    districtSelect.dispatchEvent(new Event("change"));
 }
 
 window.listWard = function (districtId = null) {
@@ -433,6 +527,9 @@ window.loginHandler = function () {
                 localStorage.setItem("token", data.token);
                 localStorage.setItem("user", JSON.stringify(data.user));
                 alert("Đăng nhập thành công");
+
+                var myModal = new bootstrap.Modal(document.getElementById("loginModal"));
+                myModal.hide();
 
                 $(loginBtn).addClass("d-none");
                 $(registerBtn).addClass("d-none");
